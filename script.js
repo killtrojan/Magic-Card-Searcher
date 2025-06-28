@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        resultsGrid.innerHTML = '<p>Buscando...</p>';
+        resultsGrid.innerHTML = '<p>Searching...</p>';
 
         try {
             const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=name`);
