@@ -3,65 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magic the Gathering: Card Searcher</title>
+    <title>Herramientas de Magic: The Gathering</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="app-container">
+        <header>
+            <h1>Herramientas de Magic</h1>
+            <p class="subtitle">Elige una herramienta para comenzar</p>
+        </header>
 
-    <div class="container">
-        <h1>Magic the Gathering: Card Searcher</h1>
-        
-        <!-- Contenedor de Búsqueda y Filtros -->
-        <div class="search-container">
-            <div class="main-search">
-                <input type="text" id="cardNameInput" placeholder="Name, text or type...">
-                <button id="searchButton">Search</button>
-            </div>
-            
-            <fieldset class="filters">
-                <legend>Advanced filters</legend>
-                <div class="filter-group">
-                    <label>Colors:</label>
-                    <div class="color-checkboxes">
-                        <input type="checkbox" id="colorW" value="w"><label for="colorW" title="White">W</label>
-                        <input type="checkbox" id="colorU" value="u"><label for="colorU" title="Blue">U</label>
-                        <input type="checkbox" id="colorB" value="b"><label for="colorB" title="Black">B</label>
-                        <input type="checkbox" id="colorR" value="r"><label for="colorR" title="Red">R</label>
-                        <input type="checkbox" id="colorG" value="g"><label for="colorG" title="Green">G</label>
-                    </div>
+        <main class="hub-main">
+            <div class="tool-selection-container">
+                <!-- Opción 1: Creador de Mazos -->
+                <div class="tool-card">
+                    <h2>Creador de Mazos</h2>
+                    <p>Construye, guarda y gestiona todas tus barajas de Magic. Incluye un buscador de cartas para añadir a tu lista y permite exportar tus creaciones.</p>
+                    <a href="creador-mazos.html" class="btn btn-primary">Ir al Creador</a>
                 </div>
-                <div class="filter-group">
-                    <label for="typeFilter">Card Type:</label>
-                    <select id="typeFilter">
-                        <option value="">Any</option>
-                        <option value="creature">Creature</option>
-                        <option value="instant">Instand</option>
-                        <option value="sorcery">Sorcery</option>
-                        <option value="artifact">Artifact</option>
-                        <option value="enchantment">Enchantment</option>
-                        <option value="land">Tierra</option>
-                        <option value="planeswalker">Planeswalker</option>
-                    </select>
+
+                <!-- Opción 2: Buscador de Cartas -->
+                <div class="tool-card">
+                    <h2>Buscador de Cartas</h2>
+                    <p>Encuentra rápidamente cualquier carta de la base de datos de Scryfall. Ideal para consultas rápidas y explorar el universo de Magic.</p>
+                    <a href="buscador.html" class="btn btn-primary">Ir al Buscador</a>
                 </div>
-            </fieldset>
-        </div>
-
-        <!-- Área de Resultados en Cuadrícula -->
-        <div id="resultsGrid" class="results-grid">
-            <p>�</p>
-        </div>
-    </div>
-
-    <!-- Modal para ver detalles de la carta -->
-    <div id="cardModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <button id="modalClose" class="modal-close">&times;</button>
-            <div id="modalBody">
-                <!-- El detalle de la carta se insertará aquí -->
             </div>
-        </div>
+        </main>
     </div>
-
-    <script src="script.js"></script>
 </body>
 </html>

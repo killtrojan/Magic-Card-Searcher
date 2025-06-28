@@ -1,159 +1,168 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- Referencias a elementos del DOM ---
-    const searchButton = document.getElementById('searchButton');
-    const cardNameInput = document.getElementById('cardNameInput');
-    const resultsGrid = document.getElementById('resultsGrid');
-    const typeFilter = document.getElementById('typeFilter');
+    const deckForm = document.getElementById('deck-form');
+    const deckNameInput = document.getElementById('deck-name');
+    const deckFormatSelect = document.getElementById('deck-format');
+    const cardListTextarea = document.getElementById('card-list');
+    const savedDecksList = document.getElementById('saved-decks-list');
+    const mainView = document.getElementById('main-view');
+    const detailView = document.getElementById('deck-detail-view');
+    const backToListBtn = document.getElementById('back-to-list-btn');
+    const detailDeckName = document.getElementById('detail-deck-name');
+    const detailDeckFormat = document.getElementById('detail-deck-format');
+    const detailCardBreakdown = document.getElementById('card-columns');
+    const totalCardsSpan = document.getElementById('total-cards');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const searchResultContainer = document.getElementById('search-result');
+    const cardModal = document.getElementById('card-modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalCloseBtn = document.getElementById('modal-close');
+    const colorFilters = document.getElementById('color-filters');
+    let downloadDeckBtn = document.getElementById('download-deck-btn');
     
-    // Modal
-    const modal = document.getElementById('cardModal');
-    const modalCloseButton = document.getElementById('modalClose');
-    const modalBody = document.getElementById('modalBody');
+    loadDecks();
 
-    // --- NUEVO: Almacenamiento para los símbolos de maná ---
-    let manaSymbols = {};
+    deckForm.addEventListener('submit', (e) => { e.preventDefault(); saveAndReload(); });
+    backToListBtn.addEventListener('click', showMainView);
+    searchForm.addEventListener('submit', (e) => { e.preventDefault(); searchCards(); });
+    modalCloseBtn.addEventListener('click', hideCardModal);
+    cardModal.addEventListener('click', (e) => { if (e.target === cardModal) hideCardModal(); });
 
-    // --- NUEVO: Función para obtener todos los símbolos de maná de la API ---
-    const fetchManaSymbols = async () => {
+    async function searchCards() {
+        const cardName = searchInput.value.trim();
+        if (!cardName) return;
+        let query = `${cardName}`;
+        const selectedColors = Array.from(colorFilters.querySelectorAll('input:checked')).map(cb => cb.value).join('');
+        if (selectedColors) { query += ` color<=${selectedColors}`; }
+        searchResultContainer.innerHTML = '<p>Buscando...</p>';
         try {
-            const response = await fetch('https://api.scryfall.com/symbology');
-            if (!response.ok) throw new Error('No se pudieron cargar los símbolos de maná.');
-            
-            const symbologyData = await response.json();
-            
-            // Guardamos cada símbolo y su URL en nuestro objeto
-            symbologyData.data.forEach(symbol => {
-                manaSymbols[symbol.symbol] = symbol.svg_uri;
-            });
-            console.log('Símbolos de maná cargados exitosamente.');
-        } catch (error) {
-            console.error(error);
-            // La app puede seguir funcionando, pero no mostrará los símbolos
-        }
-    };
-
-    // --- NUEVO: Función para reemplazar texto de maná por imágenes ---
-    const replaceManaSymbols = (text) => {
-        if (!text) return 'N/A'; // Devuelve 'N/A' si el texto es nulo (ej. tierras sin coste)
-
-        // Usamos una expresión regular para encontrar todos los símbolos como {W}, {2}, {T}, etc.
-        return text.replace(/{([^}]+)}/g, (match) => {
-            // 'match' es el texto completo, ej: "{W}"
-            const symbolUrl = manaSymbols[match];
-            if (symbolUrl) {
-                // Si encontramos el símbolo en nuestro objeto, devolvemos una etiqueta de imagen
-                return `<img src="${symbolUrl}" alt="${match}" class="mana-symbol">`;
-            }
-            // Si no lo encontramos, devolvemos el texto original
-            return match;
-        });
-    };
-
-
-    // --- Función para construir la consulta de búsqueda ---
-    const buildSearchQuery = () => {
-        let queryParts = [];
-        const nameText = cardNameInput.value.trim();
-        if (nameText) queryParts.push(nameText);
-
-        const typeValue = typeFilter.value;
-        if (typeValue) queryParts.push(`t:${typeValue}`);
-
-        const selectedColors = [];
-        document.querySelectorAll('.color-checkboxes input:checked').forEach(checkbox => {
-            selectedColors.push(checkbox.value);
-        });
-        if (selectedColors.length > 0) {
-            queryParts.push(`c>=${selectedColors.join('')}`);
-        }
-        
-        return queryParts.join(' ');
-    };
-
-    // --- Función principal de búsqueda ---
-    const searchCards = async () => {
-        const query = buildSearchQuery();
-        if (!query) {
-            resultsGrid.innerHTML = '<p class="error-message">Introduce algún criterio de búsqueda.</p>';
-            return;
-        }
-
-        resultsGrid.innerHTML = '<p>Searching...</p>';
-
-        try {
-            const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=name`);
+            const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&unique=cards`);
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.details || 'No se encontraron cartas con esos criterios.');
+                if(response.status === 404) throw new Error('No se encontraron cartas que coincidan.');
+                else throw new Error('Error en la búsqueda.');
             }
-            const cardListData = await response.json();
-            displayResultsGrid(cardListData.data);
-        } catch (error) {
-            resultsGrid.innerHTML = `<p class="error-message">${error.message}</p>`;
-        }
-    };
-
-    // --- Función para mostrar los resultados en la cuadrícula ---
-    const displayResultsGrid = (cards) => {
-        resultsGrid.innerHTML = '';
-        if (cards.length === 0) {
-            resultsGrid.innerHTML = '<p>Cards not found.</p>';
-            return;
-        }
+            const resultData = await response.json();
+            displaySearchResults(resultData.data);
+        } catch (error) { searchResultContainer.innerHTML = `<p>${error.message}</p>`; }
+    }
+    function displaySearchResults(cards) {
+        searchResultContainer.innerHTML = '';
+        if (!cards || cards.length === 0) { searchResultContainer.innerHTML = '<p>No se encontraron cartas.</p>'; return; }
         cards.forEach(card => {
-            const imageUrl = card.image_uris?.small || card.card_faces?.[0].image_uris?.small;
-            if (imageUrl) {
-                const imgElement = document.createElement('img');
-                imgElement.src = imageUrl;
-                imgElement.alt = card.name;
-                imgElement.classList.add('grid-card-image');
-                imgElement.addEventListener('click', () => openModal(card));
-                resultsGrid.appendChild(imgElement);
-            }
+            const imageUrl = card.image_uris?.small || card.card_faces?.[0].image_uris.small;
+            if (!imageUrl) return;
+            const cardItem = document.createElement('div');
+            cardItem.className = 'search-card-item';
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = card.name;
+            img.addEventListener('click', () => showCardInModal(card));
+            const addButton = document.createElement('button');
+            addButton.className = 'add-card-btn';
+            addButton.textContent = '+';
+            addButton.title = `Añadir "${card.name}" a la baraja`;
+            addButton.addEventListener('click', (e) => { e.stopPropagation(); addCardToDecklist(card.name); });
+            cardItem.appendChild(img);
+            cardItem.appendChild(addButton);
+            searchResultContainer.appendChild(cardItem);
         });
-    };
-
-    // --- Funciones para el Modal (ACTUALIZADA) ---
-    const openModal = (card) => {
-        const imageUrl = card.image_uris?.normal || card.card_faces?.[0].image_uris?.normal;
-
-        // ¡BONUS! También reemplazamos los símbolos en el texto de la carta (oracle_text)
-        const oracleTextWithSymbols = replaceManaSymbols(card.oracle_text || 'Sin texto de reglas.');
-        
-        const cardHTML = `
-            <img src="${imageUrl}" alt="${card.name}">
-            <div class="card-info">
-                <h2>${card.name}</h2>
-                <p><strong>Mana Cost:</strong> ${replaceManaSymbols(card.mana_cost)}</p>
-                <p><strong>Type:</strong> ${card.type_line}</p>
-                <p><strong>Text:</strong></p>
-                <p>${oracleTextWithSymbols.replace(/\n/g, '<br>')}</p>
-                ${card.power ? `<p><strong>Power/Toughness:</strong> ${card.power}/${card.toughness}</p>` : ''}
-                <p><strong>Expansion:</strong> ${card.set_name}</p>
-                <p><strong>Legality:</strong> ${Object.entries(card.legalities).filter(([_,v]) => v === 'legal').map(([k]) => k).join(', ')}</p>
-            </div>
-        `;
-        modalBody.innerHTML = cardHTML;
-        modal.classList.remove('hidden');
-    };
-
-    const closeModal = () => {
-        modal.classList.add('hidden');
-        modalBody.innerHTML = '';
-    };
-
-    // --- Event Listeners ---
-    searchButton.addEventListener('click', searchCards);
-    cardNameInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') searchCards();
-    });
-
-    modalCloseButton.addEventListener('click', closeModal);
-    modal.addEventListener('click', (event) => {
-        if (event.target === modal) closeModal();
-    });
-
-    // --- NUEVO: Iniciar la carga de los símbolos al cargar la página ---
-    fetchManaSymbols();
+    }
+    function addCardToDecklist(cardName) {
+        const list = cardListTextarea.value;
+        const cardNameRegex = new RegExp(`^(\\d+)\\s*x?\\s*${escapeRegExp(cardName)}$`, 'im');
+        let newList = '';
+        if (cardNameRegex.test(list)) { newList = list.replace(cardNameRegex, (match, quantity) => `${parseInt(quantity, 10) + 1} ${cardName}`); }
+        else { const newLine = `1 ${cardName}`; newList = list ? `${list}\n${newLine}` : newLine; }
+        cardListTextarea.value = newList;
+        cardListTextarea.style.transition = 'none';
+        cardListTextarea.style.backgroundColor = '#4a4a50';
+        setTimeout(() => { cardListTextarea.style.transition = 'background-color 0.5s'; cardListTextarea.style.backgroundColor = ''; }, 150);
+    }
+    function escapeRegExp(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    function showCardInModal(cardData) {
+        const imageUrl = cardData.image_uris?.normal || cardData.card_faces[0].image_uris.normal;
+        if (imageUrl) { modalImage.src = imageUrl; modalImage.alt = cardData.name; cardModal.classList.remove('hidden'); }
+    }
+    function hideCardModal() { cardModal.classList.add('hidden'); modalImage.src = ""; }
+    function downloadDeckAsTxt(deck) {
+        const fileContent = `Nombre: ${deck.name}\nFormato: ${deck.format}\n\n---\n\n${deck.cards}`;
+        const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+        const fileName = sanitizeFilename(`${deck.name}.txt`);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+    function sanitizeFilename(name) { return name.replace(/[\s\/\\?%*:|"<>]/g, '_'); }
+    function saveAndReload() {
+        const deck = { id: Date.now(), name: deckNameInput.value.trim(), format: deckFormatSelect.value, cards: cardListTextarea.value.trim() };
+        if (deck.name) { saveDeck(deck); deckForm.reset(); loadDecks(); }
+        else { alert('Por favor, ponle un nombre a tu baraja.'); }
+    }
+    function saveDeck(deck) { const decks = getDecksFromStorage(); decks.push(deck); localStorage.setItem('magicDecks', JSON.stringify(decks)); }
+    function loadDecks() {
+        const decks = getDecksFromStorage();
+        savedDecksList.innerHTML = '';
+        if (decks.length === 0) { savedDecksList.innerHTML = '<li>No tienes barajas guardadas todavía.</li>'; return; }
+        decks.forEach(deck => {
+            const li = document.createElement('li');
+            li.dataset.id = deck.id;
+            const info = document.createElement('div');
+            info.className = 'deck-info';
+            info.innerHTML = `${deck.name} <small>${deck.format}</small>`;
+            const btn = document.createElement('button');
+            btn.textContent = 'Eliminar';
+            btn.className = 'btn btn-danger';
+            btn.addEventListener('click', e => { e.stopPropagation(); if (confirm(`¿Eliminar "${deck.name}"?`)) deleteDeck(deck.id); });
+            li.appendChild(info);
+            li.appendChild(btn);
+            li.addEventListener('click', () => viewDeck(deck.id));
+            savedDecksList.appendChild(li);
+        });
+    }
+    function deleteDeck(id) { let decks = getDecksFromStorage(); decks = decks.filter(deck => deck.id !== id); localStorage.setItem('magicDecks', JSON.stringify(decks)); loadDecks(); }
+    function getDecksFromStorage() { const decks = localStorage.getItem('magicDecks'); return decks ? JSON.parse(decks) : []; }
+    async function viewDeck(id) {
+        const decks = getDecksFromStorage();
+        const deck = decks.find(d => d.id === id);
+        if (deck) {
+            detailDeckName.textContent = deck.name;
+            detailDeckFormat.textContent = deck.format;
+            const cards = deck.cards.split('\n').filter(line => line.trim() !== '');
+            detailCardBreakdown.innerHTML = '';
+            let totalCards = 0;
+            for (const cardLine of cards) {
+                const cardElement = document.createElement('p');
+                cardElement.textContent = cardLine;
+                const match = cardLine.trim().match(/^(?:\d+\s*x?\s*)?(.*)/i);
+                if (match && match[1]) {
+                    const cardName = match[1].trim();
+                    cardElement.classList.add('clickable-card');
+                    cardElement.addEventListener('click', async () => {
+                        try {
+                            const response = await fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}`);
+                            if (!response.ok) throw new Error();
+                            const cardData = await response.json();
+                            showCardInModal(cardData);
+                        } catch (e) { alert(`No se encontró la carta: "${cardName}"`); }
+                    });
+                }
+                detailCardBreakdown.appendChild(cardElement);
+                const quantityMatch = cardLine.trim().match(/^(\d+)/);
+                if (quantityMatch && quantityMatch[1]) totalCards += parseInt(quantityMatch[1], 10);
+                else totalCards += 1;
+            }
+            totalCardsSpan.textContent = totalCards;
+            const newDownloadBtn = downloadDeckBtn.cloneNode(true);
+            downloadDeckBtn.parentNode.replaceChild(newDownloadBtn, downloadDeckBtn);
+            downloadDeckBtn = newDownloadBtn;
+            downloadDeckBtn.addEventListener('click', () => downloadDeckAsTxt(deck));
+            showDetailView();
+        }
+    }
+    function showMainView() { mainView.classList.remove('hidden'); detailView.classList.add('hidden'); }
+    function showDetailView() { mainView.classList.add('hidden'); detailView.classList.remove('hidden'); }
 });
