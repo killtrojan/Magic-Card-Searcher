@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creador de Barajas de Magic</title>
+    <title>Deck Builder</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,44 +15,44 @@
 
     <div id="app-container">
         <header>
-            <h1>Creador de Barajas de Magic</h1>
-            <a href="index.html" class="back-to-hub-link">&larr; Volver al inicio</a>
+            <h1>Deck Builder</h1>
+            <a href="index.html" class="back-to-hub-link">&larr; Go back</a>
         </header>
 
         <section id="card-searcher">
-            <h2>Buscador de Cartas (Scryfall)</h2>
+            <h2>Card Browser(Scryfall)</h2>
             <form id="search-form">
-                <input type="text" id="search-input" placeholder="Escribe parte del nombre de una carta..." required>
+                <input type="text" id="search-input" placeholder="Search by card name or text...." required>
                 <div id="color-filters">
                     <label title="Blanco"><input type="checkbox" value="W"> W</label>
-                    <label title="Azul"><input type="checkbox" value="U"> U</label>
-                    <label title="Negro"><input type="checkbox" value="B"> B</label>
-                    <label title="Rojo"><input type="checkbox" value="R"> R</label>
-                    <label title="Verde"><input type="checkbox" value="G"> G</label>
-                    <label title="Incoloro"><input type="checkbox" value="C"> C</label>
+                    <label title="Blue"><input type="checkbox" value="U"> U</label>
+                    <label title="Black"><input type="checkbox" value="B"> B</label>
+                    <label title="Red"><input type="checkbox" value="R"> R</label>
+                    <label title="Green"><input type="checkbox" value="G"> G</label>
+                    <label title="colorless"><input type="checkbox" value="C"> C</label>
                 </div>
-                <button type="submit" class="btn">Buscar Cartas</button>
+                <button type="submit" class="btn">Search cards</button>
             </form>
             <div id="search-result" class="search-results-grid"></div>
         </section>
 
         <main id="main-view">
             <section id="deck-creator">
-                <h2>Crear Nueva Baraja</h2>
+                <h2>Create new deck</h2>
                 <form id="deck-form">
-                    <div class="form-group"><label for="deck-name">Nombre de la Baraja:</label><input type="text" id="deck-name" placeholder="Ej: Mi Baraja de Goblins" required></div>
-                    <div class="form-group"><label for="deck-format">Formato:</label><select id="deck-format" required><option value="Standard">Estándar</option><option value="Modern">Moderno</option><option value="Commander">Commander</option><option value="Pioneer">Pioneer</option><option value="Legacy">Legacy</option><option value="Pauper">Pauper</option><option value="Casual">Casual / Otro</option></select></div>
-                    <div class="form-group"><label for="card-list">Lista de Cartas:</label><textarea id="card-list" rows="15" placeholder="Pega tu lista de cartas aquí o añádelas desde el buscador."></textarea></div>
-                    <button type="submit" class="btn btn-primary">Guardar Baraja</button>
+                    <div class="form-group"><label for="deck-name">Deck name:</label><input type="text" id="deck-name" placeholder="Example: My Goblin Deck" required></div>
+                    <div class="form-group"><label for="deck-format">Format:</label><select id="deck-format" required><option value="Standard">Estándar</option><option value="Modern">Moderno</option><option value="Commander">Commander</option><option value="Pioneer">Pioneer</option><option value="Legacy">Legacy</option><option value="Pauper">Pauper</option><option value="Casual">Casual / Otro</option></select></div>
+                    <div class="form-group"><label for="card-list">Card list:</label><textarea id="card-list" rows="15" placeholder="Paste your deck list here or add cards from the search."></textarea></div>
+                    <button type="submit" class="btn btn-primary">Save deck</button>
                 </form>
             </section>
-            <section id="deck-list-container"><h2>Mis Barajas Guardadas</h2><ul id="saved-decks-list"></ul></section>
+            <section id="deck-list-container"><h2>My Saved Decks</h2><ul id="saved-decks-list"></ul></section>
         </main>
 
         <div id="deck-detail-view" class="hidden">
-            <div class="detail-view-actions"><button id="back-to-list-btn" class="btn">&larr; Volver a la lista</button><button id="download-deck-btn" class="btn btn-secondary">Descargar (.txt)</button></div>
+            <div class="detail-view-actions"><button id="back-to-list-btn" class="btn">&larr; Return to the list</button><button id="download-deck-btn" class="btn btn-secondary">Descargar (.txt)</button></div>
             <h2 id="detail-deck-name"></h2><p><strong>Formato:</strong> <span id="detail-deck-format"></span></p>
-            <div id="detail-card-breakdown"><h3>Lista de Cartas (<span id="total-cards"></span>) - Haz clic en una para verla</h3><div id="card-columns"></div></div>
+            <div id="detail-card-breakdown"><h3>Card list(<span id="total-cards"></span>) - Select one to view</h3><div id="card-columns"></div></div>
         </div>
     </div>
     <script src="script.js"></script>
