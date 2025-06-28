@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic the Gathering: Card Searcher</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Magic the Gathering: Card Searcher</h1>
+        
+        <!-- Contenedor de Búsqueda y Filtros -->
+        <div class="search-container">
+            <div class="main-search">
+                <input type="text" id="cardNameInput" placeholder="Name, text or type...">
+                <button id="searchButton">Search</button>
+            </div>
+            
+            <fieldset class="filters">
+                <legend>Advanced filters</legend>
+                <div class="filter-group">
+                    <label>Colors:</label>
+                    <div class="color-checkboxes">
+                        <input type="checkbox" id="colorW" value="w"><label for="colorW" title="White">W</label>
+                        <input type="checkbox" id="colorU" value="u"><label for="colorU" title="Blue">U</label>
+                        <input type="checkbox" id="colorB" value="b"><label for="colorB" title="Black">B</label>
+                        <input type="checkbox" id="colorR" value="r"><label for="colorR" title="Red">R</label>
+                        <input type="checkbox" id="colorG" value="g"><label for="colorG" title="Green">G</label>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="typeFilter">Card Type:</label>
+                    <select id="typeFilter">
+                        <option value="">Any</option>
+                        <option value="creature">Criatura</option>
+                        <option value="instant">Instantáneo</option>
+                        <option value="sorcery">Conjuro</option>
+                        <option value="artifact">Artefacto</option>
+                        <option value="enchantment">Encantamiento</option>
+                        <option value="land">Tierra</option>
+                        <option value="planeswalker">Planeswalker</option>
+                    </select>
+                </div>
+            </fieldset>
+        </div>
+
+        <!-- Área de Resultados en Cuadrícula -->
+        <div id="resultsGrid" class="results-grid">
+            <p>Results� will be displayed here</p>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de la carta -->
+    <div id="cardModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="modalClose" class="modal-close">&times;</button>
+            <div id="modalBody">
+                <!-- El detalle de la carta se insertará aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
