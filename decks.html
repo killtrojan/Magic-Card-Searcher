@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="card-modal" class="modal-container hidden">
+        <span id="modal-close" class="modal-close-btn">&times;</span>
+        <img id="modal-image" src="" alt="Imagen de la carta">
+    </div>
+
+    <div id="app-container">
+        <header>
+            <h1>Deck Manager</h1>
+            <a href="index.html" class="back-to-hub-link">&larr; Go back</a>
+        </header>
+
+            <section id="deck-list-container"><h2>My Saved Decks</h2><ul id="saved-decks-list"></ul></section>
+        </main>
+
+        <div id="deck-detail-view" class="hidden">
+            <div class="detail-view-actions"><button id="back-to-list-btn" class="btn">&larr; Return to the list</button><button id="download-deck-btn" class="btn btn-secondary">Descargar (.txt)</button></div>
+            <h2 id="detail-deck-name"></h2><p><strong>Formato:</strong> <span id="detail-deck-format"></span></p>
+            <div id="detail-card-breakdown"><h3>Card list(<span id="total-cards"></span>) - Select one to view</h3><div id="card-columns"></div></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

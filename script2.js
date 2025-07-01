@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchManaSymbols = async () => {
         try {
             const response = await fetch('https://api.scryfall.com/symbology');
-            if (!response.ok) throw new Error('No se pudieron cargar los símbolos de maná.');
+            if (!response.ok) throw new Error('Mana symbols can not be loaded.');
             
             const symbologyData = await response.json();
             
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchCards = async () => {
         const query = buildSearchQuery();
         if (!query) {
-            resultsGrid.innerHTML = '<p class="error-message">Introduce algún criterio de búsqueda.</p>';
+            resultsGrid.innerHTML = '<p class="error-message">Add some text to start a search.</p>';
             return;
         }
 
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=name`);
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.details || 'No se encontraron cartas con esos criterios.');
+                throw new Error(errorData.details || 'Cards not found with the choosen criteria.');
             }
             const cardListData = await response.json();
             displayResultsGrid(cardListData.data);
